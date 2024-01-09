@@ -18,11 +18,10 @@ def replace_nbsp_with_space(data):
         return data
 
 def scrape_vacancy_info(vacancy):
-    vacancy_name_raw = vacancy.find('a', class_='serp-item__title')
+    vacancy_name_raw = vacancy.find('span', class_='serp-item__title')
     vacancy_name = get_text_or_none(vacancy_name_raw)
-    print(vacancy_name)
 
-    vacancy_link_raw = vacancy.find('a', class_='serp-item__title')
+    vacancy_link_raw = vacancy.find('a', class_='bloko-link')
     vacancy_link = vacancy_link_raw['href'] if vacancy_link_raw else None
 
     vacancy_salary_raw = vacancy.find('span', class_='bloko-header-section-2')
@@ -49,7 +48,8 @@ def main():
 
     try:
         page_number = 0
-        while True:
+        max_pages = 2
+        while page_number < max_pages:
             url = f'https://spb.hh.ru/search/vacancy?area=1&area=2&enable_snippets=true&order_by=publication_time&ored_clusters=true&text=python&search_period=1&page={page_number}'
             response = requests.get(url, headers=headers_generator.generate())
             response.raise_for_status()
@@ -87,7 +87,7 @@ def main():
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-    with open('vacancies.json', 'w', encoding='utf-8') as json_file:
+    with open('vacancies.json', 'a', encoding='utf-8') as json_file:
         json.dump(vacancy_info_list, json_file, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
